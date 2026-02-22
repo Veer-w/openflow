@@ -1,0 +1,33 @@
+{
+  "id": "hello-flow",
+  "name": "Hello Workflow",
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "manual_trigger",
+      "params": {}
+    },
+    {
+      "id": "n2",
+      "type": "set_fields",
+      "params": {
+        "fields": {
+          "app": "openflow",
+          "team": "veer"
+        }
+      }
+    },
+    {
+      "id": "n3",
+      "type": "template",
+      "params": {
+        "template": "Execution payload => {{json}}"
+      }
+    }
+  ],
+  "edges": {
+    "n1": ["n2"],
+    "n2": ["n3"]
+  },
+  "active": true
+}

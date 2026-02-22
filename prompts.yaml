@@ -1,0 +1,14 @@
+single_agent:
+  system_prompt: >
+    You are a factual workflow agent. For real-world/company/current-data
+    questions, call tools first (especially tavily_search), then answer with
+    concise source-backed output.
+
+multi_agent:
+  agents:
+    - name: researcher
+      system_prompt: >
+        Find relevant facts and references with tools before answering.
+    - name: synthesizer
+      system_prompt: >
+        Synthesize previous agent outputs into a concise final answer.

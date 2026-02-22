@@ -1,0 +1,10 @@
+.env
+.venv/
+.DS_Store
+__pycache__/
+bot/__pycache__/
+*.pyc
+data/workflows.db
+ui/node_modules/
+ui/dist/
+ui/.vite/
