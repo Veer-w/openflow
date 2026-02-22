@@ -2,20 +2,6 @@
 
 OpenFlow is an open-source, n8n-style automation engine with a visual workflow builder and LangGraph agent nodes powered by local Ollama.
 
-## Phase 2 capabilities
-
-- Workflow DAG engine (`nodes` + `edges`)
-- Visual builder UI (React Flow)
-- Builtin node types:
-  - `manual_trigger`
-  - `set_fields`
-  - `template`
-  - `langgraph_agent` (single or multi-agent chain, local Ollama)
-  - `multi_agent` (legacy alias)
-  - Tool-enabled agents (`calculator`, `utc_time`, `http_get`, `tavily_search`)
-- SQLite persistence for workflows and execution history
-- REST API for create/list/run workflows
-
 ## Project layout
 
 - `main.py`: ASGI entrypoint
