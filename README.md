@@ -103,3 +103,12 @@ curl -X POST "http://127.0.0.1:8000/workflows/visual-agent-flow/run" \
   - `"tools": ["calculator", "tavily_search"]`
   - `"max_tool_calls": 6`
 - Agent dependencies are loaded lazily at runtime by the node handler.
+
+## Contributing
+This project uses Branch Protection Rules. To contribute:
+
+- Fork the repository.
+- Create a Feature Branch for your changes.
+- Submit a Pull Request (PR) to the main branch.
+
+Note: Direct pushes to main are restricted. All PRs require review and manual merge by the project maintainer.
