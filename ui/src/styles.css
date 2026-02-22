@@ -1,0 +1,402 @@
+:root {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-muted: #f9fafc;
+  --line: #e6ebf2;
+  --text: #1f2a37;
+  --muted: #708196;
+  --primary: #ff7a3d;
+  --primary-strong: #e86a31;
+  --canvas: #eff3f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
+}
+
+input,
+textarea,
+button {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+  color: var(--text);
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  cursor: pointer;
+  background: #fff;
+}
+
+button:hover {
+  border-color: #bfc7d5;
+}
+
+.primary {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(140deg, var(--primary), #ff8a45);
+}
+
+.primary:hover {
+  background: var(--primary-strong);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 58px 1fr;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.topbar-fields {
+  display: grid;
+  grid-template-columns: 220px minmax(220px, 480px);
+  gap: 8px;
+}
+
+.topbar-input {
+  padding: 8px 10px;
+  background: #fafbfe;
+}
+
+.topbar-input-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-actions button {
+  width: auto;
+  min-width: 110px;
+}
+
+.save-stamp {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 220px 1fr 380px;
+  min-height: 0;
+}
+
+.sidebar {
+  padding: 12px;
+  border-right: 1px solid var(--line);
+  background: #fdfefe;
+  overflow: auto;
+}
+
+.sidebar h2 {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.palette {
+  display: grid;
+  gap: 7px;
+}
+
+.palette button {
+  text-align: left;
+  background: #fbfcfe;
+}
+
+.canvas {
+  position: relative;
+  background: var(--canvas);
+}
+
+.canvas .react-flow__background {
+  opacity: 0.55;
+}
+
+.canvas-status {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 9;
+  max-width: 60%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+}
+
+.inspector {
+  padding: 12px;
+  border-left: 1px solid var(--line);
+  background: #fefefe;
+  overflow: auto;
+}
+
+.inspector-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.inspector-tabs .tab-active {
+  color: #fff;
+  border-color: transparent;
+  background: #253244;
+}
+
+h2 {
+  margin-top: 2px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.tool-toggle-list {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.tool-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfdff;
+  cursor: pointer;
+}
+
+.tool-toggle-row input {
+  width: auto;
+  margin: 0;
+}
+
+.tool-toggle-row span {
+  font-size: 0.84rem;
+}
+
+.agent-editor-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.agent-editor-card {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.agent-editor-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.agent-editor-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.agent-editor-actions button {
+  width: auto;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+}
+
+.execution-card {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.execution-card p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+}
+
+.execution-card pre {
+  margin: 6px 0 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: #fff;
+  overflow-x: auto;
+  font-size: 0.78rem;
+}
+
+.raw-json {
+  margin: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.chat-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.bubble {
+  border-radius: 11px;
+  padding: 10px;
+}
+
+.bubble p {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  line-height: 1.35;
+}
+
+.bubble-user {
+  border: 1px solid #d7e2f2;
+  background: #f4f8ff;
+}
+
+.bubble-agent {
+  border: 1px solid #e2e7ef;
+  background: #fafbfd;
+}
+
+.bubble-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  width: auto;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.copy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.advanced-json {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-muted);
+  overflow: hidden;
+}
+
+.advanced-json summary {
+  padding: 9px 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.params-json {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  min-height: 120px;
+  max-height: 220px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  background: #fff;
+}
+
+.status-ok {
+  color: #0c6f3f;
+  font-weight: 600;
+}
+
+.status-bad {
+  color: #8f2d2d;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .topbar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .topbar-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(360px, 55vh) auto;
+  }
+
+  .sidebar,
+  .inspector {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .inspector {
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+  }
+}
