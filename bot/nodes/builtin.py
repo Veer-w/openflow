@@ -5,6 +5,8 @@ from typing import Any
 
 from .agent import langgraph_agent_handler, multi_agent_handler
 from .base import NodeRegistry, NodeSpec
+from .file_upload import file_upload_handler
+from .visualizer import data_visualizer_handler
 
 
 def manual_trigger_handler(_params: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -65,5 +67,19 @@ def register_builtin_nodes(registry: NodeRegistry) -> None:
             type_name="multi_agent",
             description="Legacy alias for sequential multi-agent execution.",
             handler=multi_agent_handler,
+        )
+    )
+    registry.register(
+        NodeSpec(
+            type_name="data_visualizer",
+            description="Auto-detects data in the payload, charts it, and has a local LLM interpret it.",
+            handler=data_visualizer_handler,
+        )
+    )
+    registry.register(
+        NodeSpec(
+            type_name="file_upload",
+            description="Parses an uploaded CSV or Excel file into row records for downstream nodes.",
+            handler=file_upload_handler,
         )
     )

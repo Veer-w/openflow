@@ -12,6 +12,8 @@ OpenFlow is an open-source, n8n-style automation engine with a visual workflow b
 - `bot/store.py`: SQLite storage
 - `bot/models.py`: workflow/execution models
 - `bot/nodes/`: node registry + builtin handlers
+  - `bot/nodes/visualizer.py`: `data_visualizer` node (auto-charts payload data + LLM interpretation)
+  - `bot/nodes/file_upload.py`: `file_upload` node (parses uploaded CSV/Excel into rows)
 - `ui/`: React + Vite visual builder
 - `examples/hello_workflow.json`: base sample workflow
 - `examples/visual_agent_workflow.json`: LangGraph/Ollama sample workflow
@@ -103,6 +105,13 @@ curl -X POST "http://127.0.0.1:8000/workflows/visual-agent-flow/run" \
   - `"tools": ["calculator", "tavily_search"]`
   - `"max_tool_calls": 6`
 - Agent dependencies are loaded lazily at runtime by the node handler.
+
+## New: data visualization
+
+- `file_upload` node: upload a CSV or Excel file from the visual builder's node inspector (a real file picker), and it parses the rows into the payload (`rows`, `source_filename`) for downstream nodes. Requires `pandas`/`openpyxl` for Excel (installed via `uv sync`).
+- `data_visualizer` node: auto-detects tabular data anywhere in the payload (or falls back to a generic structure chart), renders up to 3 charts (numeric histograms + a categorical bar chart) with `matplotlib`, and asks a local Ollama model to interpret the stats. Each chart can be downloaded as a PNG from the Execution panel.
+- Typical flow: `manual_trigger` (or `file_upload`) → `data_visualizer`.
+- **Model profiles**: `config.ini`'s `[model_profiles]` section (e.g. `fast = qwen2.5:1.5b`, `quality = llama3.1:8b`) is exposed via `/config` and shown as a "Model profile" dropdown in the inspector for `data_visualizer` and `langgraph_agent` — pick a profile instead of typing a model name by hand.
 
 ## Contributing
 This project uses Branch Protection Rules. To contribute:

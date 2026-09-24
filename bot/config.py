@@ -57,6 +57,11 @@ class AppConfig:
             "tavily_max_results": self._get_int("agent_tools", "tavily_max_results", 5),
         }
 
+    def model_profiles(self) -> dict[str, str]:
+        if not self._parser.has_section("model_profiles"):
+            return {"fast": "qwen2.5:1.5b", "quality": "llama3.1:8b"}
+        return dict(self._parser.items("model_profiles"))
+
     def multi_agent_defaults(self) -> dict[str, object]:
         fallback_agents: list[dict[str, object]] = [
             {

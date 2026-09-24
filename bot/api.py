@@ -51,6 +51,7 @@ def config() -> dict[str, dict[str, object]]:
         "multi_agent_defaults": app_config.multi_agent_defaults(),
         "profile_8gb": app_config.profile_8gb(),
         "agent_tools": app_config.agent_tool_settings(),
+        "model_profiles": app_config.model_profiles(),
     }
 
 
