@@ -69,6 +69,13 @@ type AppConfigResponse = {
     allow_http_domains?: string[];
     tavily_max_results?: number;
   };
+  model_profiles?: Record<string, string>;
+};
+
+type ChartImage = {
+  column: string;
+  kind: string;
+  image: string;
 };
 
 type ExecutionResponse = {
@@ -81,7 +88,7 @@ type ExecutionResponse = {
   error: string | null;
 };
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8001";
 
 const fallbackAgentDefaults: AgentConfig = {
   model: "qwen2.5:1.5b",
@@ -141,6 +148,18 @@ const buildDefaultNodeParams = (
     max_tool_calls: agentDefaults.max_tool_calls ?? 6,
     agents: agentSteps.length > 0 ? agentSteps : fallbackAgentSteps,
   },
+  data_visualizer: {
+    model: agentDefaults.model,
+    system_prompt:
+      "You are a data analyst. You are given a statistical summary of a dataset. Explain what the data looks like, call out any notable patterns or outliers, in a few concise sentences.",
+    num_ctx: agentDefaults.num_ctx,
+    num_predict: agentDefaults.num_predict,
+    temperature: agentDefaults.temperature,
+  },
+  file_upload: {
+    filename: "",
+    file_base64: "",
+  },
 });
 
 const initialNodes: Node<WorkflowNodeData>[] = [
@@ -171,6 +190,7 @@ export function App() {
   const [agentDefaults, setAgentDefaults] = useState<AgentConfig>(fallbackAgentDefaults);
   const [agentSteps, setAgentSteps] = useState<AgentStep[]>(fallbackAgentSteps);
   const [lastSavedAt, setLastSavedAt] = useState<string>("");
+  const [modelProfiles, setModelProfiles] = useState<Record<string, string>>({});
 
   useEffect(() => {
     Promise.all([
@@ -192,6 +212,9 @@ export function App() {
           if (configuredSteps.length > 0) {
             setAgentSteps([configuredSteps[0]]);
           }
+          if (configData.model_profiles) {
+            setModelProfiles(configData.model_profiles);
+          }
         }
 
         if (toolsRes.ok) {
@@ -207,7 +230,7 @@ export function App() {
       setEdges((eds) => addEdge({ ...connection, animated: true }, eds));
       if (connection.target) {
         const targetNode = nodes.find((n) => n.id === connection.target);
-        if (targetNode?.data.type === "langgraph_agent") {
+        if (targetNode?.data.type === "langgraph_agent" || targetNode?.data.type === "file_upload") {
           setSelectedNodeId(targetNode.id);
           setInspectorTab("node");
         }
@@ -239,7 +262,32 @@ export function App() {
 
     setNodes((curr) => [...curr, next]);
     setSelectedNodeId(id);
-    setInspectorTab(type === "langgraph_agent" ? "node" : "execution");
+    setInspectorTab(type === "langgraph_agent" || type === "file_upload" ? "node" : "execution");
+  };
+
+  const handleFileSelected = (file: File) => {
+    if (!selectedNode || selectedNode.data.type !== "file_upload") return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(",").pop() ?? "";
+      setNodes((curr) =>
+        curr.map((node) =>
+          node.id === selectedNode.id
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  params: { ...node.data.params, filename: file.name, file_base64: base64 },
+                },
+              }
+            : node
+        )
+      );
+      setStatus(`Loaded ${file.name} into ${selectedNode.id}`);
+    };
+    reader.onerror = () => setStatus(`Failed to read ${file.name}`);
+    reader.readAsDataURL(file);
   };
 
   const updateSelectedParam = (raw: string) => {
@@ -258,6 +306,18 @@ export function App() {
     } catch {
       setStatus("Invalid JSON for params");
     }
+  };
+
+  const updateSelectedModel = (model: string) => {
+    if (!selectedNode) return;
+    setNodes((curr) =>
+      curr.map((node) =>
+        node.id === selectedNode.id
+          ? { ...node, data: { ...node.data, params: { ...node.data.params, model } } }
+          : node
+      )
+    );
+    setStatus(`Set model for ${selectedNode.id} to ${model}`);
   };
 
   const updateSelectedAgentSteps = (agents: AgentStep[]) => {
@@ -442,6 +502,20 @@ export function App() {
     execution && typeof execution.result?.agent_output === "string"
       ? execution.result.agent_output
       : null;
+  const chartImages: ChartImage[] =
+    execution && Array.isArray(execution.result?.chart_images)
+      ? (execution.result.chart_images as unknown[]).filter(
+          (item): item is ChartImage =>
+            !!item &&
+            typeof item === "object" &&
+            typeof (item as ChartImage).image === "string" &&
+            typeof (item as ChartImage).column === "string"
+        )
+      : [];
+  const chartSummary =
+    execution && typeof execution.result?.chart_summary === "string"
+      ? execution.result.chart_summary
+      : null;
   const selectedAgentSteps =
     selectedNode && selectedNode.data.type === "langgraph_agent"
       ? normalizeAgentSteps(selectedNode.data.params.agents)
@@ -497,7 +571,11 @@ export function App() {
             onConnect={onConnect}
             onNodeClick={(_, node) => {
               setSelectedNodeId(node.id);
-              setInspectorTab(node.data.type === "langgraph_agent" ? "node" : "execution");
+              setInspectorTab(
+                node.data.type === "langgraph_agent" || node.data.type === "file_upload"
+                  ? "node"
+                  : "execution"
+              );
             }}
             fitView
           >
@@ -529,6 +607,53 @@ export function App() {
             <h2>Node Inspector</h2>
             {selectedNode ? (
               <>
+                {selectedNode.data.type === "file_upload" ? (
+                  <>
+                    <label>CSV or Excel file</label>
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileSelected(file);
+                      }}
+                    />
+                    <p className="muted">
+                      {typeof selectedNode.data.params.filename === "string" &&
+                      selectedNode.data.params.filename
+                        ? `Loaded: ${selectedNode.data.params.filename}`
+                        : "No file loaded yet."}
+                    </p>
+                  </>
+                ) : null}
+                {selectedNode.data.type === "langgraph_agent" ||
+                selectedNode.data.type === "data_visualizer" ? (
+                  <>
+                    <label>Model profile</label>
+                    <select
+                      value={
+                        Object.entries(modelProfiles).find(
+                          ([, model]) => model === selectedNode.data.params.model
+                        )?.[0] ?? ""
+                      }
+                      onChange={(e) => {
+                        const model = modelProfiles[e.target.value];
+                        if (model) updateSelectedModel(model);
+                      }}
+                    >
+                      <option value="" disabled>
+                        {typeof selectedNode.data.params.model === "string"
+                          ? `Custom (${selectedNode.data.params.model})`
+                          : "Select a profile"}
+                      </option>
+                      {Object.entries(modelProfiles).map(([name, model]) => (
+                        <option key={name} value={name}>
+                          {name} ({model})
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : null}
                 {selectedNode.data.type === "langgraph_agent" ? (
                   <>
                     <label>Agents</label>
@@ -584,7 +709,7 @@ export function App() {
                     rows={8}
                     defaultValue={JSON.stringify(selectedNode.data.params, null, 2)}
                     onBlur={(e) => updateSelectedParam(e.target.value)}
-                    key={selectedNode.id}
+                    key={`${selectedNode.id}:${JSON.stringify(selectedNode.data.params)}`}
                   />
                 </details>
               </>
@@ -641,6 +766,35 @@ export function App() {
                     <p>{agentMessage ?? "No agent output field found in result."}</p>
                   </div>
                 </div>
+                {chartImages.length > 0 ? (
+                  <>
+                    <label>Charts</label>
+                    <div className="chart-panel">
+                      {chartImages.map((chart, index) => (
+                        <div className="chart-card" key={`${chart.column}-${index}`}>
+                          <div className="chart-card-head">
+                            <span>
+                              {chart.column} ({chart.kind})
+                            </span>
+                            <a
+                              className="download-btn"
+                              href={`data:image/png;base64,${chart.image}`}
+                              download={`chart_${chart.column}.png`}
+                            >
+                              Download PNG
+                            </a>
+                          </div>
+                          <img
+                            className="chart-image"
+                            src={`data:image/png;base64,${chart.image}`}
+                            alt={`Chart for ${chart.column}`}
+                          />
+                        </div>
+                      ))}
+                      {chartSummary ? <pre className="raw-json">{chartSummary}</pre> : null}
+                    </div>
+                  </>
+                ) : null}
                 <details className="advanced-json" open={false}>
                   <summary>Raw Result (JSON)</summary>
                   <pre className="raw-json">{JSON.stringify(execution.result, null, 2)}</pre>

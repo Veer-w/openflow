@@ -332,6 +332,46 @@ label {
   cursor: not-allowed;
 }
 
+.chart-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.chart-card {
+  display: grid;
+  gap: 6px;
+}
+
+.chart-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.download-btn {
+  width: auto;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.download-btn:hover {
+  border-color: #bfc7d5;
+}
+
+.chart-image {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
 .muted {
   color: var(--muted);
 }
